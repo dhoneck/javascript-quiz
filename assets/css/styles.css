@@ -1,0 +1,54 @@
+/* General */
+:root {
+    --branded-purple: #361c75;
+    --branded-pink: #bd60e7;
+    --branded-opacity: .75;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+/* Body */
+body {
+    margin: 0;
+}
+
+#timer {
+    float: right;
+    margin-top: 20px;
+    margin-right: 30px;
+}
+
+#main-content {
+    text-align: center;
+}
+
+/* Buttons */
+button {
+    cursor: pointer;
+}
+
+#view-scores {
+    color: var(--branded-pink);
+    background-color: inherit;
+    border: none;
+    margin-top: 20px;
+    margin-left: 30px;
+}
+
+#view-scores:hover {
+    opacity: var(--branded-opacity);
+}
+
+button:not(#view-scores) {
+    background-color: var(--branded-purple);
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+}
+
+button:not(#view-scores):hover {
+    background-color: var(--branded-pink);
+}
