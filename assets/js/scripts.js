@@ -6,12 +6,58 @@ var mainContentEl = document.getElementById("main-content");
 
 // Game variables
 var score = 0; // Tracks score which is the amount of seconds left at the end of the game
-// var scores = []; // Tracks all scores
 var questionIdx = 0; // Tracks the current question index
-var questionCorrect = false; // Tracks if previous question was answered correctly
+var questionCorrect; // Tracks if previous question was answered correctly
 var questions = []; // Holds all of the quiz questions
+var userAnswerKey = ""; // Holds the key to the user's answer
 
 // Add questions
+questions.push({
+    question: "Inside which HTML element do we put the JavaScript?",
+    a1: "<script>",
+    a2: "<js>",
+    a3: "<scripting>",
+    a4: "<javascript>",
+    correct: "a1",
+});
+
+questions.push({
+    question: 'How do you write "Hello World" in an alert box?',
+    a1: 'alert("Hello World");',
+    a2: 'msg("Hello World");',
+    a3: 'msgBox("Hello World");',
+    a4: 'alertBox("Hello World");',
+    correct: "a1",
+});
+
+questions.push({
+    question: "How do you round the number 7.25, to the nearest integer?",
+    a1: "Math.round(7.25)",
+    a2: "round(7.25)",
+    a3: "Math.rnd(7.25)",
+    a4: "rnd(7.25)",
+    correct: "a1",
+});
+
+
+questions.push({
+    question: "How do you find the number with the highest value of x and y?",
+    a1: "Math.max(x, y)",
+    a2: "Math.ceil(x, y)",
+    a3: "top(x, y)",
+    a4: "ceil(x, y)",
+    correct: "a1",
+});
+
+questions.push({
+    question: "Which operator is used to assign a value to a variable?",
+    a1: "=",
+    a2: "x",
+    a3: "-",
+    a4: "*",
+    correct: "a1",
+});
+
 questions.push({
     question: "Commonly used data types do not include:",
     a1: "strings",
@@ -32,7 +78,7 @@ questions.push({
 
 // TODO: Add more questions
 
-// Clears the main container
+// Clear the main container
 function clearMainContainer() {
     mainContentEl.innerHTML = "";
 }
@@ -95,6 +141,11 @@ function showQuestion() {
         answer2.className = "answers";
         answer3.className = "answers";
         answer4.className = "answers";
+
+        answer1.setAttribute("data-index", 'a1');
+        answer2.setAttribute("data-index", 'a2');
+        answer3.setAttribute("data-index", 'a3');
+        answer4.setAttribute("data-index", 'a4');
         
         h3.textContent = questions[questionIdx].question;
         answer1.textContent = "1. " + questions[questionIdx].a1;
@@ -107,6 +158,9 @@ function showQuestion() {
         mainContentEl.append(answer2);
         mainContentEl.append(answer3);
         mainContentEl.append(answer4);
+
+        showCorrectOrIncorrect();
+
     } else { // Out of questions - end game
         endGame();
     }    
@@ -114,7 +168,31 @@ function showQuestion() {
 
 // Checks if question was answered correctly
 function checkAnswer() {
-    // TODO: Complete functionality
+    var answeredQuestion = questions[questionIdx];
+    var answerKey = answeredQuestion["correct"];
+
+    if (answerKey === userAnswerKey) {
+        console.log("Question is correct.");
+        questionCorrect = true;
+    } else {
+        console.log("Question is incorrect.");
+        questionCorrect = false;
+        score -= 10;
+    }
+
+}
+
+function showCorrectOrIncorrect() {
+    // Display correct or incorrect
+    if (questionCorrect != null) {
+        var correctOrIncorrect = document.createElement("p");
+        if (questionCorrect == true) {
+            correctOrIncorrect.textContent = "Previous question: Correct";
+        } else if (questionCorrect == false) {
+            correctOrIncorrect.textContent = "Previous question: Incorrect";
+        }
+        mainContentEl.append(correctOrIncorrect);
+    }
 }
 
 // Displays score and asks user for initials to save the score
@@ -141,6 +219,9 @@ function endGame() {
     mainContentEl.append(span);
     mainContentEl.append(inputField);
     mainContentEl.append(inputSubmit);
+
+    showCorrectOrIncorrect();
+    questionCorrect = null;
 }
 
 // Show previous quiz scores from local storage
@@ -168,6 +249,7 @@ function showScores() {
             li.textContent = "Score: " + storedScores[i].score + " User: " + storedScores[i].initials;
             ol.append(li);
         }
+
     } else { // Scores do not exist - let user know
         var li = document.createElement("li");
         li.textContent = "No previous scores";
@@ -191,21 +273,26 @@ mainContentEl.addEventListener("click", function (e) {
     if (element.id == "start-quiz") { // Start quiz button was clicked
         startCountdown();
         showQuestion();
+
     } else if (element.className === "answers") { // Quiz answer button was clicked
-        // TODO: Check if answer was correct
+        // Track the user's answer selection
+        userAnswerKey = element.getAttribute("data-index");
+        console.log("Index: " + userAnswerKey);
+        checkAnswer();
 
         // Go to next question
         questionIdx++;
         showQuestion();
 
-        // TODO: Display if you were correct or wrong
-        
     } else if (element.id === "submit-score") { // Submit score button was clicked
         // Get user initials from input field
         var userInitials = document.getElementById("user-initials").value;
         
-        // Get the previous scores
+        // Get the previous scores or initialize an empty array if there are none
         var storedScores = JSON.parse(localStorage.getItem("scores"));
+        if (storedScores == null) {
+            storedScores = [];
+        }
 
         // Add initials and score to scores array
         storedScores.push({
@@ -214,11 +301,11 @@ mainContentEl.addEventListener("click", function (e) {
         });
 
         // TODO: Sort the scores before setting
-        
-        localStorage.setItem("scores", JSON.stringify(storedScores));
 
-        
+        // Re-add the scores with the new score
+        localStorage.setItem("scores", JSON.stringify(storedScores));
         showScores();
+
     } else if (element.id === "back") { // Back button was clicked
         clearMainContainer();
         if (questionIdx == 0) { // Quiz isn't running - go to start page
