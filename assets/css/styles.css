@@ -30,6 +30,10 @@ ol {
     padding: 0;
 }
 
+#user-initials {
+    height: 35px;
+}
+
 /* Buttons */
 button {
     cursor: pointer;
@@ -64,4 +68,8 @@ button:not(#view-scores):hover {
     min-width: 400px;
     margin: 10px auto;
     text-align: left;;
+}
+
+#submit-score {
+    margin-left: 10px;
 }

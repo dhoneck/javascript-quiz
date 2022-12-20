@@ -5,78 +5,94 @@ var mainContentEl = document.getElementById("main-content");
 
 
 // Game variables
-var score = 0; // Tracks score which is the amount of seconds left at the end of the game
+var score = 0; // Tracks score which relates to time left of the game
 var questionIdx = 0; // Tracks the current question index
 var questionCorrect; // Tracks if previous question was answered correctly
-var questions = []; // Holds all of the quiz questions
 var userAnswerKey = ""; // Holds the key to the user's answer
 
 // Add questions
-questions.push({
-    question: "Inside which HTML element do we put the JavaScript?",
-    a1: "<script>",
-    a2: "<js>",
-    a3: "<scripting>",
-    a4: "<javascript>",
-    correct: "a1",
-});
-
-questions.push({
-    question: 'How do you write "Hello World" in an alert box?',
-    a1: 'alert("Hello World");',
-    a2: 'msg("Hello World");',
-    a3: 'msgBox("Hello World");',
-    a4: 'alertBox("Hello World");',
-    correct: "a1",
-});
-
-questions.push({
-    question: "How do you round the number 7.25, to the nearest integer?",
-    a1: "Math.round(7.25)",
-    a2: "round(7.25)",
-    a3: "Math.rnd(7.25)",
-    a4: "rnd(7.25)",
-    correct: "a1",
-});
-
-
-questions.push({
-    question: "How do you find the number with the highest value of x and y?",
-    a1: "Math.max(x, y)",
-    a2: "Math.ceil(x, y)",
-    a3: "top(x, y)",
-    a4: "ceil(x, y)",
-    correct: "a1",
-});
-
-questions.push({
-    question: "Which operator is used to assign a value to a variable?",
-    a1: "=",
-    a2: "x",
-    a3: "-",
-    a4: "*",
-    correct: "a1",
-});
-
-questions.push({
-    question: "Commonly used data types do not include:",
-    a1: "strings",
-    a2: "booleans",
-    a3: "alerts",
-    a4: "numbers",
-    correct: "a3",
-});
-
-questions.push({
-    question: "The condition in an if / else statement is enclosed with _______.",
-    a1: "quotes",
-    a2: "curly brackets",
-    a3: "parentheses",
-    a4: "square brackets",
-    correct: "a3"
-});
-
-// TODO: Add more questions
+var questions = [
+    {
+        question: "Inside which HTML element do we put the JavaScript?",
+        a1: "<script>",
+        a2: "<js>",
+        a3: "<scripting>",
+        a4: "<javascript>",
+        correct: "a1",
+    },
+    {
+        question: 'How do you write "Hello World" in an alert box?', 
+        a1: 'msg("Hello World");',
+        a2: 'msgBox("Hello World");',
+        a3: 'alert("Hello World");',
+        a4: 'alertBox("Hello World");',
+        correct: "a3",
+    },
+    {
+        question: "How do you round the number 7.25, to the nearest integer?",
+        a1: "Math.round(7.25)",
+        a2: "round(7.25)",
+        a3: "Math.rnd(7.25)",
+        a4: "rnd(7.25)",
+        correct: "a1",
+    },
+    {
+        question: "How do you find the number with the highest value of x and y?",
+        a1: "Math.ceil(x, y)",
+        a2: "Math.max(x, y)",
+        a3: "top(x, y)",
+        a4: "ceil(x, y)",
+        correct: "a2",
+    },
+    {
+        question: "Which operator is used to assign a value to a variable?",
+        a1: "=",
+        a2: "x",
+        a3: "-",
+        a4: "*",
+        correct: "a1",
+    },
+    {
+        question: "Commonly used data types do not include:",
+        a1: "strings",
+        a2: "booleans",
+        a3: "alerts",
+        a4: "numbers",
+        correct: "a3",
+    },
+    {
+        question: "The condition in an if / else statement is enclosed with _______.",
+        a1: "quotes",
+        a2: "curly brackets",
+        a3: "square brackets",
+        a4: "parentheses",
+        correct: "a4",
+    },
+    {
+        question: "Which of the following methods can be used to display data in some form using Javascript?",
+        a1: "document.write()",
+        a2: "console.log()",
+        a3: "window.alert()",
+        a4: "All of the above",
+        correct: "a4",
+    },
+    {
+        question: "How can a datatype be declared to be a constant type?",
+        a1: "const",
+        a2: "var",
+        a3: "let",
+        a4: "constant",
+        correct: "a1",
+    },
+    {
+        question: "Which function is used to serialize an object into a JSON string in Javascript?",
+        a1: "convert()",
+        a2: "parse()",
+        a3: "stringify()",
+        a4: "None of the above",
+        correct: "a3",
+    },
+];
 
 // Clear the main container
 function clearMainContainer() {
@@ -95,7 +111,7 @@ function showStartPage() {
     btn.id = "start-quiz";
 
     h1.textContent = "Coding Quiz Challenge";
-    p.textContent = "Try to answer the following code-related questions within the time limit. Keep in mind that incorrect answers will penalize your score/time by ten seconds!";
+    p.textContent = "Try to answer the following code-related questions within the time limit. Keep in mind that incorrect answers will penalize your score/time by ten seconds! There are a total of " + questions.length + " questions.";
     btn.textContent = "Start Quiz";
 
     mainContentEl.append(h1);
@@ -105,30 +121,34 @@ function showStartPage() {
 
 // Start countdown timer
 function startCountdown() {
-    var timeLeft = 75;
+    // The score is the amount of time left - set initial time to 75 seconds
+    score = 75;
     
     // Update the HTML timer every second and check for end game conditions
     var timeInterval = setInterval(function() {
-        timerEl.innerHTML = "Time: " + timeLeft;
-        if (timeLeft == 0 || questionIdx === questions.length) {
-            // Set score to the time remaining
-            score = timeLeft;
-            
+        timerEl.innerHTML = "Time: " + score;
+        if (score <= 0 || questionIdx === questions.length) { // Check for win criteria        
+            // Reset score to 0 if below 0
+            if (score < 0) {
+                score = 0;
+                timerEl.innerHTML = "Time: " + score;
+            }
             // Reset the question index so quiz can be retaken
             questionIdx = 0;
             
             // Stop timer and conclude game
             clearInterval(timeInterval);
             endGame();
+        } else {
+            score--;
         }
-        timeLeft--;
     }, 1000);
 }
 
 // Displays the next question
 function showQuestion() {
     clearMainContainer();
-
+    
     if (questionIdx < questions.length) { // Show next question
         // Create HTML elements and add to page
         var h3 = document.createElement("h3");
@@ -147,7 +167,7 @@ function showQuestion() {
         answer3.setAttribute("data-index", 'a3');
         answer4.setAttribute("data-index", 'a4');
         
-        h3.textContent = questions[questionIdx].question;
+        h3.textContent = "(" + (questionIdx + 1) + " of " + questions.length + ") " + questions[questionIdx].question;
         answer1.textContent = "1. " + questions[questionIdx].a1;
         answer2.textContent = "2. " + questions[questionIdx].a2;
         answer3.textContent = "3. " + questions[questionIdx].a3;
@@ -158,8 +178,6 @@ function showQuestion() {
         mainContentEl.append(answer2);
         mainContentEl.append(answer3);
         mainContentEl.append(answer4);
-
-        showCorrectOrIncorrect();
 
     } else { // Out of questions - end game
         endGame();
@@ -172,10 +190,8 @@ function checkAnswer() {
     var answerKey = answeredQuestion["correct"];
 
     if (answerKey === userAnswerKey) {
-        console.log("Question is correct.");
         questionCorrect = true;
     } else {
-        console.log("Question is incorrect.");
         questionCorrect = false;
         score -= 10;
     }
@@ -187,9 +203,9 @@ function showCorrectOrIncorrect() {
     if (questionCorrect != null) {
         var correctOrIncorrect = document.createElement("p");
         if (questionCorrect == true) {
-            correctOrIncorrect.textContent = "Previous question: Correct";
+            correctOrIncorrect.textContent = "Previously answered question: Correct";
         } else if (questionCorrect == false) {
-            correctOrIncorrect.textContent = "Previous question: Incorrect";
+            correctOrIncorrect.textContent = "Previously answered question: Incorrect";
         }
         mainContentEl.append(correctOrIncorrect);
     }
@@ -198,7 +214,7 @@ function showCorrectOrIncorrect() {
 // Displays score and asks user for initials to save the score
 function endGame() {
     clearMainContainer();
-
+    
     // Create HTML elements and add to page
     var h3 = document.createElement("h3");
     var p1 = document.createElement("p");
@@ -219,7 +235,7 @@ function endGame() {
     mainContentEl.append(span);
     mainContentEl.append(inputField);
     mainContentEl.append(inputSubmit);
-
+    
     showCorrectOrIncorrect();
     questionCorrect = null;
 }
@@ -235,7 +251,7 @@ function showScores() {
 
     resumeBtn.id = "back";
 
-    h3.textContent = "Top Scores";
+    h3.textContent = "Previous Scores";
     resumeBtn.textContent = "Back";
 
     // Grab scores from local storage
@@ -277,7 +293,6 @@ mainContentEl.addEventListener("click", function (e) {
     } else if (element.className === "answers") { // Quiz answer button was clicked
         // Track the user's answer selection
         userAnswerKey = element.getAttribute("data-index");
-        console.log("Index: " + userAnswerKey);
         checkAnswer();
 
         // Go to next question
@@ -300,8 +315,6 @@ mainContentEl.addEventListener("click", function (e) {
             score: score,
         });
 
-        // TODO: Sort the scores before setting
-
         // Re-add the scores with the new score
         localStorage.setItem("scores", JSON.stringify(storedScores));
         showScores();
@@ -316,7 +329,7 @@ mainContentEl.addEventListener("click", function (e) {
     }
 });
 
-// Listen for the view high scores button to be clicked
+// Listen for the view scores button to be clicked
 viewScoresBtn.addEventListener("click", function (e) {
     e.preventDefault();
     showScores();
